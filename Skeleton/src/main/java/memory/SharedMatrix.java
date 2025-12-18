@@ -6,10 +6,16 @@ public class SharedMatrix {
 
     public SharedMatrix() {
         // TODO: initialize empty matrix
+        this.vectors = new SharedVector[0];
+
     }
 
     public SharedMatrix(double[][] matrix) {
         // TODO: construct matrix as row-major SharedVectors
+        this.vectors = new SharedVector[matrix.length];
+        for (int i = 0; i < matrix.length; i++) {
+            this.vectors[i] = new SharedVector(matrix[i], VectorOrientation.ROW_MAJOR);
+        }
     }
 
     public void loadRowMajor(double[][] matrix) {
