@@ -13,23 +13,68 @@ public class TiredExecutor {
 
     public TiredExecutor(int numThreads) {
         // TODO
-        workers = null; // placeholder
+        workers = new TiredThread[numThreads] ;
+        for (int i = 0 ; i < numThreads ; i++) {
+            double fatigueFactor = 0.5 + Math.random() ;
+            TiredThread workTiredThread = new TiredThread(i, fatigueFactor) ;
+            workers[i] = workTiredThread ;
+            workers[i].start() ;
+            idleMinHeap.add(workTiredThread) ;
+        }
     }
 
     public void submit(Runnable task) {
         // TODO
+        try {
+            TiredThread worker = idleMinHeap.take() ;
+            inFlight.incrementAndGet() ;
+            worker.newTask(task);
+        } catch (InterruptedException e ) {
+            Thread.currentThread().interrupt(); ;
+        }
     }
 
     public void submitAll(Iterable<Runnable> tasks) {
         // TODO: submit tasks one by one and wait until all finish
+        for (Runnable runnable : tasks) {
+            submit(runnable) ;
+        }
+        try {
+            while (inFlight.get() > 0) {
+                Thread.sleep(100) ;
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt() ;
+        }
+       
     }
 
     public void shutdown() throws InterruptedException {
         // TODO
+        while( inFlight.get() > 0 ) {
+            Thread.sleep(100) ;
+        }
+        for (TiredThread worker : workers) {
+            worker.shutdown() ;
+        }
+        for (TiredThread worker : workers) {
+            worker.join(); ;
+        }
     }
 
     public synchronized String getWorkerReport() {
         // TODO: return readable statistics for each worker
-        return null;
+
+        StringBuilder sb = new StringBuilder() ;
+
+        for ( TiredThread worker : workers) {
+            sb.append("Worker ").append(worker.getId()).append(": ") ;
+            sb.append("fatigue=").append(worker.getFatigue()).append(", ") ;
+            sb.append("timeUsed=").append(worker.getTimeUsed()).append(", ") ;
+            sb.append("timeIdle=").append(worker.getTimeIdle()).append(", ") ;
+            sb.append("busy=").append(worker.isBusy()) ;
+            sb.append("/n") ;
+        }
+        return sb.toString();
     }
 }
