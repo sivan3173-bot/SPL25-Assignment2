@@ -28,9 +28,10 @@ public class TiredExecutor {
         try {
             TiredThread worker = idleMinHeap.take() ;
             inFlight.incrementAndGet() ;
-            worker.newTask(task);
+            Runnable r = ()->{ task.run() ; idleMinHeap.put(worker) ; } ;
+            worker.newTask(r) ;
         } catch (InterruptedException e ) {
-            Thread.currentThread().interrupt(); ;
+            Thread.currentThread().interrupt() ; 
         }
     }
 
@@ -46,7 +47,6 @@ public class TiredExecutor {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt() ;
         }
-       
     }
 
     public void shutdown() throws InterruptedException {

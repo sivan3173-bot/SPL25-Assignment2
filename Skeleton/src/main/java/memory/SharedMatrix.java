@@ -33,7 +33,7 @@ public class SharedMatrix {
     for (int j = 0; j < numCols; j++) { // colomns of original
         double[] colData = new double[numRows];
         for (int i = 0; i < numRows; i++) { // rows of original
-            colData[i] = matrix[i][j];
+            colData[i] = matrix[i][j] ;
         }
         this.vectors[j] = new SharedVector(colData, VectorOrientation.COLUMN_MAJOR); // connect 
     }
