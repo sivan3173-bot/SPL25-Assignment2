@@ -28,7 +28,7 @@ public class TiredExecutor {
         try {
             TiredThread worker = idleMinHeap.take() ;
             inFlight.incrementAndGet() ;
-            Runnable r = ()->{ task.run() ; idleMinHeap.put(worker) ; } ;
+            Runnable r = ()->{ task.run(); inFlight.decrementAndGet(); ; idleMinHeap.put(worker) ; } ;
             worker.newTask(r) ;
         } catch (InterruptedException e ) {
             Thread.currentThread().interrupt() ; 
@@ -42,7 +42,7 @@ public class TiredExecutor {
         }
         try {
             while (inFlight.get() > 0) {
-                Thread.sleep(100) ;
+                Thread.sleep(100) ; // gives time to finish working
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt() ;
@@ -73,7 +73,7 @@ public class TiredExecutor {
             sb.append("timeUsed=").append(worker.getTimeUsed()).append(", ") ;
             sb.append("timeIdle=").append(worker.getTimeIdle()).append(", ") ;
             sb.append("busy=").append(worker.isBusy()) ;
-            sb.append("/n") ;
+            sb.append("\n") ;
         }
         return sb.toString();
     }
