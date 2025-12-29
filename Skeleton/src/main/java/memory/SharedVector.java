@@ -16,25 +16,25 @@ public class SharedVector {
 
     public double get(int index) {
         // TODO: return element at index (read-locked)
-        lock.readLock().lock() ;
+        this.readLock() ;
         double toReturn = vector[index] ;
-        lock.readLock().unlock();
+       this.readUnlock();
         return toReturn ;
     }
 
     public int length() {
         // TODO: return vector length
-        lock.readLock().lock();
+        this.readLock() ;
         int toReturn = vector.length ;
-        lock.readLock().unlock();
+        this.readUnlock();
         return toReturn ;
     }
 
     public VectorOrientation getOrientation() {
         // TODO: return vector orientation
-        lock.readLock().lock();
+        this.readLock() ;
         VectorOrientation toReturn = this.orientation ;
-        lock.readLock().unlock();
+        this.readUnlock() ;
         return toReturn ;
     }
 
@@ -60,29 +60,39 @@ public class SharedVector {
 
     public void transpose() {
         // TODO: transpose vector
+        this.writeLock();
         if (orientation == VectorOrientation.ROW_MAJOR) {
             orientation = VectorOrientation.COLUMN_MAJOR ;
         } else {
             orientation = VectorOrientation.ROW_MAJOR ;
         }
-    } // RAZ NOTE : need to make sure that each time this is used in main the vector is bprotected with writelock
+        this.writeUnlock();
+    } 
 
     public void add(SharedVector other) {
         // TODO: add two vectors
+        this.writeLock() ;
+        other.readLock();
         for(int i = 0 ; i < vector.length ; i++ ) {
             this.vector[i] = this.vector[i] + other.vector[i] ;
         }
+        this.writeUnlock() ;
+        other.readUnlock() ;
     }
 
     public void negate() {
         // TODO: negate vector
+        this.writeLock() ;
         for( int i = 0 ; i < vector.length ; i++) {
             vector[i] = (-1) * vector[i] ;
         }
+        this.writeUnlock() ;
     }
 
     public double dot(SharedVector other) {
         // TODO: compute dot product (row · column)
+        this.readLock() ;
+        other.readLock() ;
         double product = 0 ;
 
         for( int i = 0 ; i < vector.length ; i++ ) {
@@ -93,6 +103,7 @@ public class SharedVector {
 
     public void vecMatMul(SharedMatrix matrix) {
         // TODO: compute row-vector × matrix
+        this.readLock() ;
         double[] original = this.vector ;
         int cols = matrix.length() ;
         double[] result = new double[cols] ;
@@ -101,11 +112,14 @@ public class SharedVector {
            double sum = 0 ;
 
            for (int i = 0 ; i< original.length ; i++) {
-            sum = sum + original[i] * column.vector[i] ;
+               sum = sum + original[i] * column.vector[i] ;
            }
            result[j] = sum ;
         }
+        this.readUnlock() ;
+        this.writeLock() ;
         this.vector = result ;
         this.orientation = VectorOrientation.ROW_MAJOR ;
+        this.writeUnlock() ;
     }
 }
