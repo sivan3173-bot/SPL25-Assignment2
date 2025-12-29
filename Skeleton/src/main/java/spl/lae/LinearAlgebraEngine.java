@@ -120,7 +120,7 @@ public class LinearAlgebraEngine {
         return tasks;
     }
 
-    public List<Runnable> createTransposeTasks() {  ///////////צריך להוסיף נעילות בSHAREDVECTOR
+    public List<Runnable> createTransposeTasks() {  
         // TODO: return tasks that transpose rows
         List<Runnable> tasks = new ArrayList<>();
         int numRows = leftMatrix.length();
