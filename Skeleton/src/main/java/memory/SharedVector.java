@@ -18,7 +18,7 @@ public class SharedVector {
         // TODO: return element at index (read-locked)
         this.readLock() ;
         double toReturn = vector[index] ;
-       this.readUnlock();
+        this.readUnlock();
         return toReturn ;
     }
 
@@ -72,12 +72,15 @@ public class SharedVector {
     public void add(SharedVector other) {
         // TODO: add two vectors
         this.writeLock() ;
-        other.readLock();
-        for(int i = 0 ; i < vector.length ; i++ ) {
-            this.vector[i] = this.vector[i] + other.vector[i] ;
+        other.readLock() ;
+        try {
+            for(int i = 0 ; i < vector.length ; i++ ) {
+                this.vector[i] = this.vector[i] + other.vector[i] ;
+            }
+        } finally {
+            other.readUnlock() ;
+            this.writeUnlock() ;
         }
-        this.writeUnlock() ;
-        other.readUnlock() ;
     }
 
     public void negate() {
@@ -93,33 +96,51 @@ public class SharedVector {
         // TODO: compute dot product (row · column)
         this.readLock() ;
         other.readLock() ;
-        double product = 0 ;
-
-        for( int i = 0 ; i < vector.length ; i++ ) {
-            product = product + vector[i]*other.vector[i] ;
-        }
-        return product ;
+        try {
+            double product = 0 ;
+            for( int i = 0 ; i < vector.length ; i++ ) {
+                product = product + vector[i]*other.vector[i] ;
+            }
+            return product ;
+        } finally {    
+            other.readUnlock() ;
+            this.readUnlock() ;
+    }
+       
+    
     }
 
     public void vecMatMul(SharedMatrix matrix) {
         // TODO: compute row-vector × matrix
+        double[] result ;
         this.readLock() ;
-        double[] original = this.vector ;
-        int cols = matrix.length() ;
-        double[] result = new double[cols] ;
-        for( int j = 0 ; j < cols ; j++){
-           SharedVector column = matrix.get(j) ;
-           double sum = 0 ;
-
-           for (int i = 0 ; i< original.length ; i++) {
-               sum = sum + original[i] * column.vector[i] ;
-           }
-           result[j] = sum ;
-        }
-        this.readUnlock() ;
+        try {
+            double[] original = this.vector ;
+            int cols = matrix.length() ;
+            result = new double[cols] ;
+            for( int j = 0 ; j < cols ; j++){
+                SharedVector column = matrix.get(j) ;
+                column.readLock() ;
+                try {
+                    double sum = 0 ;
+                    for (int i = 0 ; i< original.length ; i++) {
+                        sum = sum + original[i] * column.vector[i] ;
+                    }
+                    result[j] = sum ;
+                } finally {
+                    column.readUnlock() ;
+                }  
+            }
+        } finally {
+            this.readUnlock() ;
+        }          
+        
         this.writeLock() ;
-        this.vector = result ;
-        this.orientation = VectorOrientation.ROW_MAJOR ;
-        this.writeUnlock() ;
+        try {
+            this.vector = result ;
+            this.orientation = VectorOrientation.ROW_MAJOR ;
+        } finally {
+            this.writeUnlock() ;
+        }
     }
 }

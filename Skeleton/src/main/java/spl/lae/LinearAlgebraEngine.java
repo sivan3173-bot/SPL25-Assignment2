@@ -55,12 +55,7 @@ public class LinearAlgebraEngine {
         }
 
         if (tasks != null) {
-            try {
-                executor.submitAll(tasks); // sends tasks
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return;
-            }
+            executor.submitAll(tasks); // sends tasks
         }
         double[][] result = leftMatrix.readRowMajor(); 
         node.resolve(result); // this node is now ready after solving
