@@ -86,6 +86,10 @@ public class SharedVector {
 
     public void add(SharedVector other) {
         // TODO: add two vectors
+        if (this.vector.length != other.vector.length) {
+            throw new IllegalArgumentException("Vector length mismatch");
+        }
+
         this.writeLock() ;
         other.readLock() ;
         try {
@@ -112,8 +116,13 @@ public class SharedVector {
 
     public double dot(SharedVector other) {
         // TODO: compute dot product (row · column)
+        if (this.vector.length != other.vector.length) {
+            throw new IllegalArgumentException("Vector length mismatch");
+        }
+        
         this.readLock() ;
         other.readLock() ;
+        
         try {
             double product = 0 ;
             for( int i = 0 ; i < vector.length ; i++ ) {

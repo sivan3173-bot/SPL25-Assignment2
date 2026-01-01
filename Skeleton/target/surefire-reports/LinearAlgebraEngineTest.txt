@@ -1,0 +1,16 @@
+-------------------------------------------------------------------------------
+Test set: LinearAlgebraEngineTest
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.028 s <<< FAILURE! -- in LinearAlgebraEngineTest
+LinearAlgebraEngineTest.testTransposeAndNegate -- Time elapsed: 0.017 s <<< ERROR!
+java.lang.IllegalStateException: The worker is not ready
+	at scheduling.TiredThread.newTask(TiredThread.java:61)
+	at scheduling.TiredExecutor.submit(TiredExecutor.java:38)
+	at scheduling.TiredExecutor.submitAll(TiredExecutor.java:47)
+	at spl.lae.LinearAlgebraEngine.loadAndCompute(LinearAlgebraEngine.java:64)
+	at spl.lae.LinearAlgebraEngine.run(LinearAlgebraEngine.java:27)
+	at LinearAlgebraEngineTest.testTransposeAndNegate(LinearAlgebraEngineTest.java:80)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+

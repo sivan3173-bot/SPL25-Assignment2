@@ -44,12 +44,24 @@ public class TiredExecutor {
     public void submitAll(Iterable<Runnable> tasks) {
         // TODO: submit tasks one by one and wait until all finish
         for (Runnable runnable : tasks) {
-            submit(runnable) ;
+            boolean done = false ; 
+            while(!done){
+                try {
+                    submit(runnable) ; //try assigning to a free worker
+                    done = true ;
+                } catch (IllegalStateException e) {
+                    try { 
+                        Thread.sleep(1) ;
+                    } catch (InterruptedException ignored) {}
+                        //sleep might throw exception
+                }
+            }
+
         }
         while (inFlight.get() > 0) {
             try {
                 Thread.sleep(1) ; // gives time to finish working
-            } catch (InterruptedException e) {
+            } catch (InterruptedException igneored) {
                 //continue waiting.
             }
         }    

@@ -43,22 +43,42 @@ public class SharedMatrix {
 
     public double[][] readRowMajor() {
         // TODO: return matrix contents as a row-major double[][]
-        double[][] toReturn = new double[vectors.length][0];
-
-        for (int i = 0; i < vectors.length; i++) {
-            SharedVector current = vectors[i];
-            current.readLock(); 
-            try{
-                double[] doubleVector = new double[current.length()]; // create the double vector;
-                for (int j = 0; j < current.length(); j++) {
-                    doubleVector[j] = current.get(j);
-                }
-                toReturn[i] = doubleVector;
-            } finally {
-                current.readUnlock(); 
-            }    
+        if (vectors.length == 0 ){
+            return new double[0][0] ;
         }
+        if (getOrientation() == VectorOrientation.ROW_MAJOR) {  //oriantation match for reading in rows
+            double[][] toReturn = new double[vectors.length][0];
+            for (int i = 0; i < vectors.length; i++) {
+                SharedVector current = vectors[i];
+                current.readLock(); 
+                try{
+                    double[] doubleVector = new double[current.length()]; // create the double vector;
+                    for (int j = 0; j < current.length(); j++) {
+                        doubleVector[j] = current.get(j);
+                    }
+                    toReturn[i] = doubleVector;
+                } finally {
+                    current.readUnlock(); 
+                }    
+            }
         return toReturn;
+        }
+        //orientation mismatch - reading as if it is rows
+        int numCols = vectors.length ;
+        int numRows = vectors[0].length() ;
+        double[][] toReturn = new double[numRows][numCols] ;
+        for (int j = 0 ; j < numCols ; j++){
+            SharedVector current = vectors[j] ;
+            current.readLock() ;
+            try {
+                for (int r = 0 ; r < numRows ; r++) {
+                    toReturn[r][j] = current.get(r) ;
+                }
+            } finally {
+                current.readUnlock() ;
+            }
+        }
+        return toReturn ;
     }
 
     public SharedVector get(int index) {
