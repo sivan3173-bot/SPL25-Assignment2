@@ -27,9 +27,33 @@ public class TiredExecutorTest {
             });
         }
         executor.submitAll(tasks);
-        assertEquals(numTasks, counter.get(), "Not all tasks were completed!");
+        assertEquals(numTasks, counter.get(), "not all tasks were completed!");
         executor.shutdown();
     }
+
+
+@Test
+public void testPrioritySelectionLogic() throws InterruptedException {
+   
+    TiredExecutor executor = new TiredExecutor(2); // create an executor with only 2 workers
+    executor.submit(() -> {
+        try { Thread.sleep(200); } catch (InterruptedException e) {}
+    });
+    
+    Thread.sleep(300); 
+     executor.submit(() -> {
+        try { Thread.sleep(10); } catch (InterruptedException e) {}
+    });
+    Thread.sleep(100); 
+    String report = executor.getWorkerReport();
+    String[] lines = report.split("\n");
+   
+    for (String line : lines) { // verify that no worker is left with 0 work time
+        assertFalse(line.contains("timeUsed=0"), "all workers should have performed work if the prioritization is correct " + line);
+    }
+    
+    executor.shutdown();
+}
 
     @Test
     public void testShutdownActuallyStops() throws InterruptedException {
