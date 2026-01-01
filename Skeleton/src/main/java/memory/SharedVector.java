@@ -16,26 +16,38 @@ public class SharedVector {
 
     public double get(int index) {
         // TODO: return element at index (read-locked)
+        double toReturn ;
         this.readLock() ;
-        double toReturn = vector[index] ;
-        this.readUnlock();
-        return toReturn ;
+        try {
+            toReturn = vector[index] ;
+            return toReturn ;
+        } finally {
+            this.readUnlock() ;
+        }
     }
 
     public int length() {
         // TODO: return vector length
         this.readLock() ;
-        int toReturn = vector.length ;
-        this.readUnlock();
-        return toReturn ;
+        int toReturn ;
+        try {
+            toReturn = vector.length ;
+            return toReturn ;
+        } finally{
+            this.readUnlock() ;
+        }
     }
 
     public VectorOrientation getOrientation() {
         // TODO: return vector orientation
         this.readLock() ;
-        VectorOrientation toReturn = this.orientation ;
-        this.readUnlock() ;
-        return toReturn ;
+        VectorOrientation toReturn ;
+        try{
+            toReturn = this.orientation ;
+            return toReturn ;
+        } finally {
+            this.readUnlock() ;
+        }
     }
 
     public void writeLock() {
@@ -60,13 +72,16 @@ public class SharedVector {
 
     public void transpose() {
         // TODO: transpose vector
-        this.writeLock();
-        if (orientation == VectorOrientation.ROW_MAJOR) {
-            orientation = VectorOrientation.COLUMN_MAJOR ;
-        } else {
-            orientation = VectorOrientation.ROW_MAJOR ;
+        this.writeLock() ;
+        try {
+             if (orientation == VectorOrientation.ROW_MAJOR) {
+                orientation = VectorOrientation.COLUMN_MAJOR ;
+            } else {
+                orientation = VectorOrientation.ROW_MAJOR ;
+            }
+        } finally {
+            this.writeUnlock() ;
         }
-        this.writeUnlock();
     } 
 
     public void add(SharedVector other) {
@@ -85,11 +100,14 @@ public class SharedVector {
 
     public void negate() {
         // TODO: negate vector
-        this.writeLock() ;
-        for( int i = 0 ; i < vector.length ; i++) {
-            vector[i] = (-1) * vector[i] ;
+        this.writeLock() ; 
+        try {
+            for(int i = 0 ; i < vector.length ; i++ ){
+                vector[i] = (-1) * vector[i] ;
+            }
+        } finally {
+            this.writeUnlock() ;
         }
-        this.writeUnlock() ;
     }
 
     public double dot(SharedVector other) {
@@ -105,9 +123,7 @@ public class SharedVector {
         } finally {    
             other.readUnlock() ;
             this.readUnlock() ;
-    }
-       
-    
+        }  
     }
 
     public void vecMatMul(SharedMatrix matrix) {

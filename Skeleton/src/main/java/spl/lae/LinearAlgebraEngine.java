@@ -45,8 +45,14 @@ public class LinearAlgebraEngine {
         ComputationNodeType type = node.getNodeType(); 
 
         if (type == ComputationNodeType.ADD) { // operator check
+            if ( leftMatrix.length() != rightMatrix.length() || leftMatrix.get(0).length() != rightMatrix.get(0).length()){
+                throw new IllegalArgumentException("Illegal operation: dimensions mismatch") ;
+            } //checking for sizes  match
             tasks = createAddTasks(); 
         } else if (type == ComputationNodeType.MULTIPLY) {
+            if (leftMatrix.get(0).length() != rightMatrix.get(0).length()) {
+                throw new IllegalArgumentException("Illegal operation: dimensions mismatch") ;
+            } //checking for sizes match
             tasks = createMultiplyTasks();
         } else if (type == ComputationNodeType.TRANSPOSE) {
             tasks = createTransposeTasks(); 
@@ -134,6 +140,5 @@ public class LinearAlgebraEngine {
         return executor.getWorkerReport();
     }
 }
-
 
 

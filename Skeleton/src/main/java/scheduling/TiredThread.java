@@ -86,7 +86,6 @@ public class TiredThread extends Thread implements Comparable<TiredThread> {
             try {
                 task = handoff.take() ;
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt() ;
                 return ;
             }
             if (task == POISON_PILL) {

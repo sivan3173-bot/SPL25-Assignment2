@@ -48,14 +48,16 @@ public class SharedMatrix {
         for (int i = 0; i < vectors.length; i++) {
             SharedVector current = vectors[i];
             current.readLock(); 
-            double[] doubleVector = new double[current.length()]; // create the double vector;
-            for (int j = 0; j < current.length(); j++) {
-                doubleVector[j] = current.get(j);
-            }
-            toReturn[i] = doubleVector;
-            current.readUnlock(); 
+            try{
+                double[] doubleVector = new double[current.length()]; // create the double vector;
+                for (int j = 0; j < current.length(); j++) {
+                    doubleVector[j] = current.get(j);
+                }
+                toReturn[i] = doubleVector;
+            } finally {
+                current.readUnlock(); 
+            }    
         }
-
         return toReturn;
     }
 
